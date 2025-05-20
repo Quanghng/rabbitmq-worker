@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start:client": "npx tsx src/messaging/client_requester.ts",
+    "start:worker:add": "npx tsx src/messaging/workers/worker_add.ts",
+    "start:worker:mul": "npx tsx src/messaging/workers/worker_mul.ts",
+    "start:worker:sub": "npx tsx src/messaging/workers/worker_sub.ts",
+    "start:worker:div": "npx tsx src/messaging/workers/worker_div.ts",
     "build": "tsc",
     "start": "tsx src/index.ts",
     "dev": "nodemon --watch src --ext ts --exec tsx src/index.ts",
@@ -14,10 +19,20 @@
   "description": "",
   "type": "module",
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
+    "@types/axios": "^0.9.36",
+    "@types/express": "^5.0.2",
     "@types/node": "^22.15.19",
+    "express": "^5.1.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/socket.io": "^3.0.1",
+    "amqplib": "^0.10.8",
+    "axios": "^1.9.0",
+    "socket.io": "^4.8.1"
   }
 }
