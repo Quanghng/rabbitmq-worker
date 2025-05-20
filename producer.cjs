@@ -7,7 +7,7 @@ async function send() {
   await channel.assertExchange(exchange, 'direct', { durable: false });
 
   // Exemple d'envoi de 4 opérations différentes :
-  const ops = ['add', 'sub', 'mul', 'div'];
+  const ops = ['add', 'sub', 'mul', 'div', 'all'];
   setInterval(() => {
     const n1 = Math.floor(Math.random() * 100);
     const n2 = Math.floor(Math.random() * 100);

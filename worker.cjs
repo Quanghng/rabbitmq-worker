@@ -16,7 +16,9 @@ async function startWorker() {
   const channel = await conn.createChannel();
   await channel.assertExchange(EXCHANGE, 'direct', { durable: false });
   await channel.assertQueue(op, { durable: false });
+  // Lie la queue à sa propre clé ET à 'all'
   await channel.bindQueue(op, EXCHANGE, op);
+  await channel.bindQueue(op, EXCHANGE, 'all');
 
   channel.consume(op, async (msg) => {
     if (msg) {
@@ -29,13 +31,15 @@ async function startWorker() {
         await new Promise(res => setTimeout(res, delay));
         result = opFunc(data.n1, data.n2);
       }
-      const response = { ...data, result };
+      const response = { ...data, op, result }; // ajoute "op" pour identifier la réponse
 
       // Réponse via replyTo/correlationId pour l'API
-      channel.sendToQueue(msg.properties.replyTo,
-        Buffer.from(JSON.stringify(response)),
-        { correlationId: msg.properties.correlationId }
-      );
+      if (msg.properties.replyTo) {
+        channel.sendToQueue(msg.properties.replyTo,
+          Buffer.from(JSON.stringify(response)),
+          { correlationId: msg.properties.correlationId }
+        );
+      }
       console.log(`Worker ${op} : calcul fait et réponse envoyée`, response);
       channel.ack(msg);
     }
