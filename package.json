@@ -11,13 +11,24 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "type": "module",
+  "type": "commonjs",
   "devDependencies": {
     "@types/node": "^22.15.19",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quanghng/rabbitmq-worker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Quanghng/rabbitmq-worker/issues"
+  },
+  "homepage": "https://github.com/Quanghng/rabbitmq-worker#readme",
+  "description": "",
+  "dependencies": {
+    "amqplib": "^0.10.8"
   }
 }
