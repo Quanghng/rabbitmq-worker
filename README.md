@@ -14,8 +14,8 @@
 
 Clone le repo :
  
-git clone [REPO_GIT](https://github.com/Quanghng/rabbitmq-worker)
-cd [rabbitmq-worker]
+git clone https://github.com/Quanghng/rabbitmq-worker
+cd rabbitmq-worker
 
 ### 1. Lancer RabbitMQ en local
 
@@ -31,7 +31,7 @@ docker compose up -d
 
 ---
 
-### 2. Lancer le backend (Express + WebSocket + AMQP +  Workers)
+### 2. Lancer le backend
 
 ```
 cd backend
@@ -41,8 +41,6 @@ node api.cjs
 
 - L'API écoute sur :  
   👉 [http://localhost:3000](http://localhost:3000)
-
-- Les résultats sont poussés en temps réel via WebSocket sur `/ws/results`
 
 ---
 
@@ -76,13 +74,12 @@ node worker.cjs div
 
 👉 L’application complète est servie depuis :  
 [http://localhost:3000](http://localhost:3000)  
-Plus besoin de lancer le frontend séparément en mode dev.
 
 ---
 
 ## ✨ Fonctionnalités
 
-- Frontend **Vue.js + Tailwind CSS**
+- Frontend **Vue.js**
 - Envoi **manuel ou automatique** d’opérations :
   - `add`, `sub`, `mul`, `div`, `all`
 - Résultats en **temps réel**
@@ -96,79 +93,6 @@ Plus besoin de lancer le frontend séparément en mode dev.
 
 ## Architecture
  
-╔══════════════════╗
-║  Utilisateur     ║
-║ (Postman, Web)   ║
-╚═════╦════════════╝
-      │ 1. HTTP POST (n1, n2, op)
-      ▼
-╔══════════════════════════════════════════╗
-║               api.cjs (Express)         ║
-╠══════════════════════════════════════════╣
-║ - Vérifie les entrées                   ║
-║ - Génère correlationId + replyTo        ║
-║ - Publie la requête dans l'exchange     ║
-║ - Attend (1 ou 4) réponses sur replyTo  ║
-║ - Rassemble et répond à l'utilisateur   ║
-╚══════════════════════════════════════════╝
-      │ 2. AMQP publish
-      ▼
-╔══════════════════════════════════════════╗
-║         RabbitMQ EXCHANGE (direct)      ║
-║           "calc_exchange"               ║
-╚══════════════════════════════════════════╝
-      │
-      ├─────[RoutingKey: add]────────────┬─────────────[Queue: "add"]───▶ Worker add
-      │                                  │
-      ├─────[RoutingKey: sub]────────────┴─────────────[Queue: "sub"]───▶ Worker sub
-      │                                  │
-      ├─────[RoutingKey: mul]────────────┴─────────────[Queue: "mul"]───▶ Worker mul
-      │                                  │
-      ├─────[RoutingKey: div]────────────┴─────────────[Queue: "div"]───▶ Worker div
-      │                                  │
-      └─────[RoutingKey: all]────────────┬─────────────[Binding supplémentaire sur TOUTES les queues]
-                                         │            (chaque queue écoute aussi "all")
-                                         ▼
-╔══════════════════════════════════════════╗
-║    Les 4 queues ("add", "sub", ...)     ║
-║    (Chacune liée à son op + à "all")    ║
-╚══════════════════════════════════════════╝
-      │
-      │ 3. AMQP consume (worker lit sa queue)
-      ▼
-╔══════════════════════════════════════════╗
-║           worker.cjs (spécialisé)       ║
-╠══════════════════════════════════════════╣
-║ - Décode n1, n2, op                     ║
-║ - Calcule le résultat                   ║
-║ - Attend 5-15 sec                       ║
-║ - Répond sur la queue replyTo           ║
-║   (via correlationId)                   ║
-╚══════════════════════════════════════════╝
-      │ 4. Réponse AMQP sur queue temporaire
-      ▼
-╔══════════════════════════════════════════╗
-║       api.cjs (récolte les réponses)    ║
-╠══════════════════════════════════════════╣
-║ - Associe les réponses par correlationId║
-║ - Attend 1 réponse (op simple)          ║
-║ - Attend 4 réponses (op "all")          ║
-║ - Supprime la queue temporaire          ║
-║ - Répond HTTP au client                 ║
-╚══════════════════════════════════════════╝
-      │ 5. HTTP response (résultat)
-      ▼
-╔══════════════════╗
-║  Utilisateur     ║
-╚══════════════════╝
- 
-────────────
-En //, tu peux avoir :
-╔══════════════════╗
-║  producer.cjs    ║
-╠══════════════════╣
-║ - Génère des jobs
-║ - Publie directement sur "calc_exchange" avec op aléatoire
-║ - N'attend PAS de réponse (test load)
-╚══════════════════╝
+![image](https://github.com/user-attachments/assets/5075f216-88bc-415a-85ec-8f02883e234a)
+
 
