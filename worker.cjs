@@ -1,7 +1,6 @@
 const amqp = require('amqplib');
 const EXCHANGE = 'calc_exchange';
 
-// Opération en paramètre de ligne de commande : add, sub, mul, div
 const op = process.argv[2] || 'add';
 
 const operations = {
@@ -16,7 +15,6 @@ async function startWorker() {
   const channel = await conn.createChannel();
   await channel.assertExchange(EXCHANGE, 'direct', { durable: false });
   await channel.assertQueue(op, { durable: false });
-  // Lie la queue à sa propre clé ET à 'all'
   await channel.bindQueue(op, EXCHANGE, op);
   await channel.bindQueue(op, EXCHANGE, 'all');
 
@@ -26,14 +24,12 @@ async function startWorker() {
       const opFunc = operations[op];
       let result = null;
       if (opFunc) {
-        // Simule un calcul long
         const delay = Math.floor(5000 + Math.random() * 10000);
         await new Promise(res => setTimeout(res, delay));
         result = opFunc(data.n1, data.n2);
       }
-      const response = { ...data, op, result }; // ajoute "op" pour identifier la réponse
+      const response = { ...data, op, result };
 
-      // Réponse via replyTo/correlationId pour l'API
       if (msg.properties.replyTo) {
         channel.sendToQueue(msg.properties.replyTo,
           Buffer.from(JSON.stringify(response)),

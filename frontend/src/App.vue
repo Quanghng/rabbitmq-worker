@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-8 text-white drop-shadow">🧠 Calcul Distribué RabbitMQ</h1>
     <div class="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
       <div class="flex-1 flex flex-col gap-8">
-        <SendForm />
+        <SendForm @new-result="addResult" />
         <AutoSender @new-result="addResult"/>
         <ResultList :results="results"/>
       </div>
@@ -26,13 +26,12 @@ import { ref } from 'vue'
 
 const results = ref([])
 
-
 function addResult(data) {
+  // On veut le plus récent en haut
   if (Array.isArray(data)) {
-    data.forEach(d => results.value.push(d))
+    results.value.unshift(...data)
   } else {
-    results.value.push(data)
+    results.value.unshift(data)
   }
 }
-
 </script>

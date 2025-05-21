@@ -38,7 +38,6 @@ app.post('/calc', async (req, res) => {
     const results = [];
     let responded = false;
 
-    // Timeout de 20 sec si pas de réponse(s)
     const timeout = setTimeout(() => {
       if (!responded) {
         responded = true;
@@ -50,11 +49,9 @@ app.post('/calc', async (req, res) => {
     channel.consume(replyQueue.queue, (msg) => {
       if (msg && msg.properties.correlationId === correlationId && !responded) {
         const result = JSON.parse(msg.content.toString());
-        // Ajout de l'horodatage
         result.timestamp = Date.now();
         results.push(result);
 
-        // Pour "all", il faut 4 réponses
         if (results.length >= expectedResponses) {
           responded = true;
           clearTimeout(timeout);

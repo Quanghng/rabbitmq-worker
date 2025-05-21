@@ -6,7 +6,6 @@ async function send() {
   const channel = await conn.createChannel();
   await channel.assertExchange(exchange, 'direct', { durable: false });
 
-  // Exemple d'envoi de 4 opérations différentes :
   const ops = ['add', 'sub', 'mul', 'div', 'all'];
   setInterval(() => {
     const n1 = Math.floor(Math.random() * 100);
@@ -15,7 +14,7 @@ async function send() {
     const msg = JSON.stringify({ n1, n2, op });
     channel.publish(exchange, op, Buffer.from(msg));
     console.log(`Envoyé à l'exchange : ${msg}`);
-  }, 5000);
+  }, 3000);
 }
 
 send();

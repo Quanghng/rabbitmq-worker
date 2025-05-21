@@ -33,7 +33,6 @@
     })
     .then(res => res.json())
     .then(data => {
-      // Emit the result to the parent component
       emit('new-result', data)
     })
   };
