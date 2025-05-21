@@ -27,7 +27,6 @@ import { ref } from 'vue'
 const results = ref([])
 
 function addResult(data) {
-  // On veut le plus récent en haut
   if (Array.isArray(data)) {
     results.value.unshift(...data)
   } else {

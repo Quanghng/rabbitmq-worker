@@ -11,44 +11,43 @@
         <span class="text-lg font-bold text-green-400">{{ totalOps }}</span>
       </div>
     </div>
-    <table class="w-full text-left text-sm mt-4">
+    <table class="w-full text-center text-sm ml-3">
       <thead>
         <tr class="text-gray-400">
           <th>Type</th>
           <th>Status</th>
           <th>Traitées</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="w in workers" :key="w.id">
           <td class="capitalize">{{ w.type }}</td>
           <td>
-            <span :class="w.status === 'idle' ? 'text-green-400' : 'text-blue-400'">{{ w.status }}</span>
+            <span :class="w.up ? (w.status === 'idle' ? 'text-green-400' : 'text-blue-400') : 'text-red-400'">
+              {{ w.up ? w.status : 'offline' }}
+            </span>
           </td>
           <td>{{ w.count }}</td>
-          <td>
-            <button class="bg-red-500 px-2 rounded text-white" @click="stopWorker(w.id)">Arrêter</button>
-          </td>
         </tr>
-        <tr v-if="workers.length === 0"><td colspan="4" class="text-center text-gray-300 py-2">Aucun worker actif</td></tr>
       </tbody>
     </table>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-// Mock, à remplacer par WS d’admin
-const workers = ref([
-  { id: 1, type: 'add', status: 'idle', count: 12 },
-  { id: 2, type: 'sub', status: 'busy', count: 7 },
-  { id: 3, type: 'mul', status: 'idle', count: 10 },
-  { id: 4, type: 'div', status: 'idle', count: 9 },
-])
-const stopWorker = id => alert("Arrêt du worker " + id + " (pas branché)")
-const totalOps = computed(() => workers.value.reduce((acc, w) => acc + w.count, 0))
-onMounted(() => {
-  // Pour plus tard : brancher WS admin
-})
+  import { ref, computed, onMounted } from 'vue'
+
+  const workers = ref([])
+  const totalOps = computed(() => workers.value.reduce((acc, w) => acc + w.count, 0))
+
+  async function fetchWorkers() {
+    const res = await fetch('http://localhost:3000/workers')
+    const data = await res.json()
+    workers.value = data
+  }
+
+  onMounted(() => {
+    fetchWorkers()
+    setInterval(fetchWorkers, 5000)
+  })
 </script>

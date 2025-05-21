@@ -12,11 +12,21 @@ const RABBIT_URL = 'amqp://user:password@localhost:5672';
 const EXCHANGE = 'calc_exchange';
 
 let channel, connection;
+const workerStatusMap = new Map();
+
 
 async function start() {
   connection = await amqp.connect(RABBIT_URL);
   channel = await connection.createChannel();
   await channel.assertExchange(EXCHANGE, 'direct', { durable: false });
+  
+  // Status queue for workers
+  await channel.assertQueue('worker_status', { durable: false });
+  channel.consume('worker_status', (msg) => {
+    const status = JSON.parse(msg.content.toString());
+    status.lastSeen = Date.now();
+    workerStatusMap.set(status.id, status);
+  });
 }
 
 app.post('/calc', async (req, res) => {
@@ -63,6 +73,16 @@ app.post('/calc', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Get workers status
+app.get('/workers', (req, res) => {
+  const now = Date.now();
+  const list = Array.from(workerStatusMap.values()).map(w => ({
+    ...w,
+    up: now - w.lastSeen < 10000 // if not heard from in last 10s → down
+  }));
+  res.json(list);
 });
 
 
