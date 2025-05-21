@@ -12,7 +12,7 @@ const operations = {
 };
 
 async function startWorker() {
-  const conn = await amqp.connect('amqp://user:password@efrei20250519.hopto.org:5681');
+  const conn = await amqp.connect('amqp://user:password@localhost:5681');
   const channel = await conn.createChannel();
   await channel.assertExchange(EXCHANGE, 'direct', { durable: false });
   await channel.assertQueue(op, { durable: false });

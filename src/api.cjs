@@ -1,11 +1,14 @@
 const express = require('express');
 const amqp = require('amqplib');
 const { v4: uuidv4 } = require('uuid');
+const cors = require('cors')
 
-const app = express();
+const app = express()
+
+app.use(cors())
 app.use(express.json());
 
-const RABBIT_URL = 'amqp://user:password@efrei20250519.hopto.org:5681';
+const RABBIT_URL = 'amqp://user:password@localhost:5681';
 const EXCHANGE = 'calc_exchange';
 
 let channel, connection;
