@@ -26,6 +26,7 @@
 import { ref } from 'vue'
 const n1 = ref(0), n2 = ref(0), op = ref('add')
 const message = ref('')
+
 const loading = ref(false)
 const sendOperation = async () => {
   loading.value = true
