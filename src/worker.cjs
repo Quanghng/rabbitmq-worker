@@ -11,8 +11,24 @@ const operations = {
   div: (a, b) => b !== 0 ? a / b : null
 };
 
+const workerId = Math.floor(Math.random() * 100000); // Or use process.pid
+let count = 0;
+let isBusy = false;
+
+
 async function startWorker() {
-  const conn = await amqp.connect('amqp://user:password@localhost:5681');
+  // Send status to client
+  setInterval(() => {
+    const statusMsg = {
+      id: workerId,
+      type: op,
+      status: isBusy ? 'busy' : 'idle',
+      count: count
+    };
+    channel.sendToQueue('worker_status', Buffer.from(JSON.stringify(statusMsg)));
+  }, 3000);
+
+  const conn = await amqp.connect('amqp://user:password@localhost:5672');
   const channel = await conn.createChannel();
   await channel.assertExchange(EXCHANGE, 'direct', { durable: false });
   await channel.assertQueue(op, { durable: false });
@@ -26,10 +42,13 @@ async function startWorker() {
       const opFunc = operations[op];
       let result = null;
       if (opFunc) {
+        isBusy = true;
         // Simule un calcul long
         const delay = Math.floor(5000 + Math.random() * 10000);
         await new Promise(res => setTimeout(res, delay));
         result = opFunc(data.n1, data.n2);
+        count++;
+        isBusy = false;
       }
       const response = { ...data, op, result }; // ajoute "op" pour identifier la réponse
 
