@@ -34,7 +34,6 @@ docker compose up -d
 ### 2. Lancer le backend
 
 ```
-cd backend
 npm install
 node api.cjs
 ```
