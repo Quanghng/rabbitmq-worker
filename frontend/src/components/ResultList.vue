@@ -26,24 +26,32 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-const results = ref([])
+// import { onMounted, ref } from 'vue'
+// const results = ref([])
 
-// À remplacer par WebSocket sur /ws/results
-onMounted(() => {
-  // --- Mock pour démo sans back ---
-  results.value = [
-    { n1: 5, n2: 3, op: "add", result: 8, timestamp: Date.now() - 60000 },
-    { n1: 9, n2: 2, op: "sub", result: 7, timestamp: Date.now() - 40000 },
-  ]
-  // Pour prod, décommente :
-  /*
-  const ws = new WebSocket('ws://localhost:5000/ws/results')
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data)
-    results.value.push(data)
-  }
-  */
-})
-const formatDate = ts => ts ? new Date(ts).toLocaleTimeString() : ''
+// // À remplacer par WebSocket sur /ws/results
+// onMounted(() => {
+//   // --- Mock pour démo sans back ---
+//   results.value = [
+//     { n1: 5, n2: 3, op: "add", result: 8, timestamp: Date.now() - 60000 },
+//     { n1: 9, n2: 2, op: "sub", result: 7, timestamp: Date.now() - 40000 },
+//   ]
+//   // Pour prod, décommente :
+//   /*
+//   const ws = new WebSocket('ws://localhost:5000/ws/results')
+//   ws.onmessage = (event) => {
+//     const data = JSON.parse(event.data)
+//     results.value.push(data)
+//   }
+//   */
+// })
+
+  const props = defineProps({
+    results: {
+      type: Array,
+      default: () => []
+    }
+  })
+
+  const formatDate = ts => ts ? new Date(ts).toLocaleTimeString() : ''
 </script>

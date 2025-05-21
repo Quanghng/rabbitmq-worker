@@ -11,7 +11,7 @@
     </div>
   </template>
   <script setup>
-  import { ref } from 'vue'
+  import { ref, onUnmounted} from 'vue'
   const autoOn = ref(false)
   const intervalSec = 5
   
@@ -26,12 +26,20 @@
     const n1 = getRandomInt(1, 50)
     const n2 = getRandomInt(1, 50)
     const op = operations[getRandomInt(0, operations.length - 1)]
-    fetch('http://localhost:5000/api/operation', {
+    fetch('http://localhost:3000/calc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ n1, n2, op })
     })
-  }
+    .then(res => res.json())
+    .then(data => {
+      // Emit the result to the parent component
+      emit('new-result', data)
+    })
+  };
+
+  const emit = defineEmits(['new-result']);
+
   const toggleAuto = () => {
     autoOn.value = !autoOn.value
     if (autoOn.value) {
@@ -40,6 +48,11 @@
     } else {
       clearInterval(timer)
     }
-  }
+  };
+
+  onUnmounted(() => {
+    clearInterval(timer)
+  })
+
   </script>
   

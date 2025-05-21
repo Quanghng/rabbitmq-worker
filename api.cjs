@@ -1,11 +1,14 @@
 const express = require('express');
 const amqp = require('amqplib');
 const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
+
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
-const RABBIT_URL = 'amqp://user:password@efrei20250519.hopto.org:5681';
+const RABBIT_URL = 'amqp://user:password@localhost:5672';
 const EXCHANGE = 'calc_exchange';
 
 let channel, connection;
@@ -47,6 +50,8 @@ app.post('/calc', async (req, res) => {
     channel.consume(replyQueue.queue, (msg) => {
       if (msg && msg.properties.correlationId === correlationId && !responded) {
         const result = JSON.parse(msg.content.toString());
+        // Ajout de l'horodatage
+        result.timestamp = Date.now();
         results.push(result);
 
         // Pour "all", il faut 4 réponses

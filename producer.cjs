@@ -2,7 +2,7 @@ const amqp = require('amqplib');
 const exchange = 'calc_exchange';
 
 async function send() {
-  const conn = await amqp.connect('amqp://user:password@efrei20250519.hopto.org:5681');
+  const conn = await amqp.connect('amqp://user:password@localhost:5672');
   const channel = await conn.createChannel();
   await channel.assertExchange(exchange, 'direct', { durable: false });
 
